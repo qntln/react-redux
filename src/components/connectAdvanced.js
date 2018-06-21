@@ -68,6 +68,9 @@ export default function connectAdvanced(
     // the key of props/context to get the store
     storeKey = 'store',
 
+    // name of the function used for listener subscription
+    subscribe = 'subscribe',
+
     // if true, the wrapped element is exposed by this HOC via the getWrappedInstance() function.
     withRef = false,
 
@@ -197,7 +200,7 @@ export default function connectAdvanced(
         // parentSub's source should match where store came from: props vs. context. A component
         // connected to the store via props shouldn't use subscription from context, or vice versa.
         const parentSub = (this.propsMode ? this.props : this.context)[subscriptionKey]
-        this.subscription = new Subscription(this.store, parentSub, this.onStateChange.bind(this))
+        this.subscription = new Subscription(this.store, parentSub, this.onStateChange.bind(this), this.props, connectOptions, subscribe)
 
         // `notifyNestedSubs` is duplicated to handle the case where the component is  unmounted in
         // the middle of the notification loop, where `this.subscription` will then be null. An
