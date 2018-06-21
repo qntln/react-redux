@@ -72,7 +72,7 @@ export default class Subscription {
   trySubscribe() {
     if (!this.unsubscribe) {
       this.unsubscribe = this.parentSub
-        ? this.parentSub.addNestedSub(this.onStateChange)
+        ? this.store[this.subscribeFuncName](this.onStateChange, this.props, this.connectOptions)
         : this.store[this.subscribeFuncName](this.onStateChange, this.props, this.connectOptions)
  
       this.listeners = createListenerCollection()

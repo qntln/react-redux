@@ -1,6 +1,6 @@
 {
-  "name": "@jkottnauer/react-redux",
-  "version": "5.0.7",
+  "name": "@quantlane/react-redux",
+  "version": "5.0.8",
   "description": "Official React bindings for Redux",
   "keywords": [
     "react",
