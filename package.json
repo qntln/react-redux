@@ -1,5 +1,5 @@
 {
-  "name": "react-redux",
+  "name": "@jkottnauer/react-redux",
   "version": "5.0.7",
   "description": "Official React bindings for Redux",
   "keywords": [
