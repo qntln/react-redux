@@ -1,5 +1,5 @@
 {
-  "name": "react-redux",
+  "name": "@quantlane/react-redux",
   "version": "7.0.2",
   "description": "Official React bindings for Redux",
   "keywords": [

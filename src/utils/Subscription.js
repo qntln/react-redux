@@ -50,12 +50,20 @@ function createListenerCollection() {
 }
 
 export default class Subscription {
-  constructor(store, parentSub) {
+  constructor(
+    store,
+    parentSub,
+    props,
+    connectOptions,
+    subscribe = 'subscribe'
+  ) {
     this.store = store
     this.parentSub = parentSub
     this.unsubscribe = null
     this.listeners = nullListeners
-
+    this.subscribeFuncName = subscribe
+    this.props = props
+    this.connectOptions = connectOptions
     this.handleChangeWrapper = this.handleChangeWrapper.bind(this)
   }
 
@@ -80,9 +88,25 @@ export default class Subscription {
 
   trySubscribe() {
     if (!this.unsubscribe) {
-      this.unsubscribe = this.parentSub
-        ? this.parentSub.addNestedSub(this.handleChangeWrapper)
-        : this.store.subscribe(this.handleChangeWrapper)
+      // Unlike original react-redux, we treat top-level subscriptions and nested subscriptions the same
+      // (we did the same in version 5 of this fork).
+      // It could be worth it (performance-wise) to figure out how to make `this.parentSub.addNestedSub(this.handleChangeWrapper)`
+      // support the changes in this fork but who knows.
+      // If you're brave enough, uncomment the following and have fun.
+
+      // this.unsubscribe = this.parentSub
+      // ? this.parentSub.addNestedSub(this.handleChangeWrapper)
+      // : this.store[this.subscribeFuncName](
+      //     this.handleChangeWrapper,
+      //     this.props,
+      //     this.connectOptions
+      //   )
+
+      this.unsubscribe = this.store[this.subscribeFuncName](
+        this.handleChangeWrapper,
+        this.props,
+        this.connectOptions
+      )
 
       this.listeners = createListenerCollection()
     }
