@@ -7,6 +7,11 @@ Performant and flexible.
 [![npm downloads](https://img.shields.io/npm/dm/react-redux.svg?style=flat-square)](https://www.npmjs.com/package/react-redux)
 [![#redux channel on Discord](https://img.shields.io/badge/discord-redux@reactiflux-61DAFB.svg?style=flat-square)](http://www.reactiflux.com)
 
+## Purpose of this fork
+
+This is a fork of react-redux which enables the user to pass the name of a subscription function used instead of the original store.subscribe function. Other extra parameters are passed as args to this function - this enables us to call only a subset of the original listeners.
+
+
 ## Installation
 
 ### Using Create React App

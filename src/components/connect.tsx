@@ -440,6 +440,7 @@ let hasWarnedAboutDeprecatedPureOption = false
  * @param mapDispatchToProps Setup for dispatching actions
  * @param mergeProps Optional callback to merge state and dispatch props together
  * @param options Options for configuring the connection
+ * @param subscribe Name of the function used for listener subscription
  *
  */
 function connect<
@@ -466,7 +467,8 @@ function connect<
 
     // the context consumer to use
     context = ReactReduxContext,
-  }: ConnectOptions<unknown, unknown, unknown, unknown> = {}
+  }: ConnectOptions<unknown, unknown, unknown, unknown> = {},
+  subscribe = 'subscribe'
 ): unknown {
   if (process.env.NODE_ENV !== 'production') {
     if (pure !== undefined && !hasWarnedAboutDeprecatedPureOption) {
@@ -600,7 +602,19 @@ function connect<
         // connected to the store via props shouldn't use subscription from context, or vice versa.
         const subscription = createSubscription(
           store,
-          didStoreComeFromProps ? undefined : contextValue!.subscription
+          didStoreComeFromProps ? undefined : contextValue!.subscription,
+          props,
+          {
+            // @ts-ignore
+            pure,
+            areStatesEqual,
+            areOwnPropsEqual,
+            areStatePropsEqual,
+            areMergedPropsEqual,
+            forwardRef,
+            context,
+          },
+          subscribe
         )
 
         // `notifyNestedSubs` is duplicated to handle the case where the component is unmounted in
