@@ -254,6 +254,7 @@ export interface ConnectOptions<
     nextMergedProps: TMergedProps,
     prevMergedProps: TMergedProps
   ) => boolean
+  subscribe?: string
 }
 
 /**
@@ -467,8 +468,10 @@ function connect<
 
     // the context consumer to use
     context = ReactReduxContext,
-  }: ConnectOptions<unknown, unknown, unknown, unknown> = {},
-  subscribe = 'subscribe'
+    subscribe = 'subscribe',
+  }: ConnectOptions<unknown, unknown, unknown, unknown> = {
+    subscribe: 'subscribe',
+  }
 ): unknown {
   if (process.env.NODE_ENV !== 'production') {
     if (pure !== undefined && !hasWarnedAboutDeprecatedPureOption) {
@@ -613,8 +616,8 @@ function connect<
             areMergedPropsEqual,
             forwardRef,
             context,
-          },
-          subscribe
+            subscribe,
+          }
         )
 
         // `notifyNestedSubs` is duplicated to handle the case where the component is unmounted in

@@ -96,12 +96,17 @@ const nullListeners = {
   get: () => [],
 } as unknown as ListenerCollection
 
+interface ConnectOptionsRequiredSubscribe extends ConnectOptions {
+  subscribe: string
+}
+
 export function createSubscription(
   store: any,
   parentSub?: Subscription,
   props?: any,
-  connectOptions?: ConnectOptions<unknown, unknown, unknown, unknown>,
-  subscribe: string = 'subscribe'
+  connectOptions: ConnectOptionsRequiredSubscribe = {
+    subscribe: 'subscribe',
+  }
 ) {
   let unsubscribe: VoidFunc | undefined
   let listeners: ListenerCollection = nullListeners
@@ -133,15 +138,19 @@ export function createSubscription(
       // support the changes in this fork but who knows.
       // If you're brave enough, uncomment the following and have fun.
 
-      // this.unsubscribe = this.parentSub
-      // ? this.parentSub.addNestedSub(this.handleChangeWrapper)
-      // : this.store[this.subscribeFuncName](
-      //     this.handleChangeWrapper,
-      //     this.props,
-      //     this.connectOptions
+      // unsubscribe = parentSub
+      // ? parentSub.addNestedSub(handleChangeWrapper)
+      // : store[connectOptions.subscribe](
+      //     handleChangeWrapper,
+      //     props,
+      //     connectOptions
       //   )
 
-      unsubscribe = store[subscribe](handleChangeWrapper, props, connectOptions)
+      unsubscribe = store[connectOptions.subscribe](
+        handleChangeWrapper,
+        props,
+        connectOptions
+      )
 
       listeners = createListenerCollection()
     }
