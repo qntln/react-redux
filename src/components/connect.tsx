@@ -255,6 +255,7 @@ export interface ConnectOptions<
     prevMergedProps: TMergedProps
   ) => boolean
   subscribe?: string
+  collections?: Array<string | Function> | null
 }
 
 /**
@@ -469,6 +470,7 @@ function connect<
     // the context consumer to use
     context = ReactReduxContext,
     subscribe = 'subscribe',
+    collections = undefined,
   }: ConnectOptions<unknown, unknown, unknown, unknown> = {
     subscribe: 'subscribe',
   }
@@ -617,6 +619,7 @@ function connect<
             forwardRef,
             context,
             subscribe,
+            collections,
           }
         )
 
