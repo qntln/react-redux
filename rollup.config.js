@@ -1,14 +1,16 @@
-import nodeResolve from 'rollup-plugin-node-resolve'
-import babel from 'rollup-plugin-babel'
-import replace from 'rollup-plugin-replace'
-import commonjs from 'rollup-plugin-commonjs'
+import nodeResolve from '@rollup/plugin-node-resolve'
+import babel from '@rollup/plugin-babel'
+import replace from '@rollup/plugin-replace'
+import commonjs from '@rollup/plugin-commonjs'
 import { terser } from 'rollup-plugin-terser'
 import pkg from './package.json'
 
 const env = process.env.NODE_ENV
 
+const extensions = ['.js', '.ts', '.tsx', '.json']
+
 const config = {
-  input: 'src/index.js',
+  input: 'src/index.ts',
   external: Object.keys(pkg.peerDependencies || {}).concat('react-dom'),
   output: {
     format: 'umd',
@@ -16,28 +18,25 @@ const config = {
     globals: {
       react: 'React',
       redux: 'Redux',
-      'react-dom': 'ReactDOM'
-    }
+      'react-dom': 'ReactDOM',
+    },
   },
   plugins: [
-    nodeResolve(),
+    nodeResolve({
+      extensions,
+    }),
     babel({
+      include: 'src/**/*',
       exclude: '**/node_modules/**',
-      runtimeHelpers: true
+      babelHelpers: 'runtime',
+      extensions,
     }),
     replace({
-      'process.env.NODE_ENV': JSON.stringify(env)
+      'process.env.NODE_ENV': JSON.stringify(env),
+      preventAssignment: true,
     }),
-    commonjs({
-      namedExports: {
-        'node_modules/react-is/index.js': [
-          'isValidElementType',
-          'isContextConsumer'
-        ],
-        'node_modules/react-dom/index.js': ['unstable_batchedUpdates']
-      }
-    })
-  ]
+    commonjs(),
+  ],
 }
 
 if (env === 'production') {
@@ -47,8 +46,8 @@ if (env === 'production') {
         pure_getters: true,
         unsafe: true,
         unsafe_comps: true,
-        warnings: false
-      }
+        warnings: false,
+      },
     })
   )
 }

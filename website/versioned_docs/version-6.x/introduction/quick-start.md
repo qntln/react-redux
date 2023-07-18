@@ -1,9 +1,8 @@
 ---
-id: version-6.x-quick-start
+id: quick-start
 title: Quick Start
 hide_title: true
 sidebar_label: Quick Start
-original_id: quick-start
 ---
 
 # Quick Start
@@ -64,18 +63,14 @@ import { increment, decrement, reset } from './actionCreators'
 
 const mapStateToProps = (state /*, ownProps*/) => {
   return {
-    counter: state.counter
+    counter: state.counter,
   }
 }
 
 const mapDispatchToProps = { increment, decrement, reset }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Counter)
+export default connect(mapStateToProps, mapDispatchToProps)(Counter)
 ```
-
 
 ## Help and Discussion
 

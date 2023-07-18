@@ -3,9 +3,18 @@ id: connect
 title: Connect
 sidebar_label: connect()
 hide_title: true
+description: 'API > connect: a Higher-Order Component to interact with Redux'
 ---
 
+&nbsp;
+
 # `connect()`
+
+:::tip
+
+`connect` still works and is supported in React-Redux 8.x. However, [**we recommend using the hooks API as the default**](./hooks.md).
+
+:::
 
 ## Overview
 
@@ -48,7 +57,7 @@ A `mapStateToProps` function takes a maximum of two parameters. The number of de
 If your `mapStateToProps` function is declared as taking one parameter, it will be called whenever the store state changes, and given the store state as the only parameter.
 
 ```js
-const mapStateToProps = state => ({ todos: state.todos })
+const mapStateToProps = (state) => ({ todos: state.todos })
 ```
 
 ##### `ownProps`
@@ -59,7 +68,7 @@ The second parameter is normally referred to as `ownProps` by convention.
 
 ```js
 const mapStateToProps = (state, ownProps) => ({
-  todo: state.todos[ownProps.id]
+  todo: state.todos[ownProps.id],
 })
 ```
 
@@ -67,9 +76,9 @@ const mapStateToProps = (state, ownProps) => ({
 
 Your `mapStateToProps` functions are expected to return an object. This object, normally referred to as `stateProps`, will be merged as props to your connected component. If you define `mergeProps`, it will be supplied as the first parameter to `mergeProps`.
 
-The return of the `mapStateToProps` determine whether the connected component will re-render (details [here](../using-react-redux/connect-mapstate#return-values-determine-if-your-component-re-renders)).
+The return of the `mapStateToProps` determine whether the connected component will re-render (details [here](../using-react-redux/connect-extracting-data-with-mapStateToProps.md#return-values-determine-if-your-component-re-renders)).
 
-For more details on recommended usage of `mapStateToProps`, please refer to [our guide on using `mapStateToProps`](../using-react-redux/connect-mapstate).
+For more details on recommended usage of `mapStateToProps`, please refer to [our guide on using `mapStateToProps`](../using-react-redux/connect-extracting-data-with-mapStateToProps.md).
 
 > You may define `mapStateToProps` and `mapDispatchToProps` as a factory function, i.e., you return a function instead of an object. In this case your returned function will be treated as the real `mapStateToProps` or `mapDispatchToProps`, and be called in subsequent calls. You may see notes on [Factory Functions](#factory-functions) or our guide on performance optimizations.
 
@@ -83,12 +92,7 @@ Your component will receive `dispatch` by default, i.e., when you do not supply 
 // do not pass `mapDispatchToProps`
 connect()(MyComponent)
 connect(mapState)(MyComponent)
-connect(
-  mapState,
-  null,
-  mergeProps,
-  options
-)(MyComponent)
+connect(mapState, null, mergeProps, options)(MyComponent)
 ```
 
 If you define a `mapDispatchToProps` as a function, it will be called with a maximum of two parameters.
@@ -103,12 +107,12 @@ If you define a `mapDispatchToProps` as a function, it will be called with a max
 If your `mapDispatchToProps` is declared as a function taking one parameter, it will be given the `dispatch` of your `store`.
 
 ```js
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
     // dispatching plain actions
     increment: () => dispatch({ type: 'INCREMENT' }),
     decrement: () => dispatch({ type: 'DECREMENT' }),
-    reset: () => dispatch({ type: 'RESET' })
+    reset: () => dispatch({ type: 'RESET' }),
   }
 }
 ```
@@ -121,12 +125,12 @@ The second parameter is normally referred to as `ownProps` by convention.
 
 ```js
 // binds on component re-rendering
-;<button onClick={() => this.props.toggleTodo(this.props.todoId)} />
+<button onClick={() => this.props.toggleTodo(this.props.todoId)} />
 
 // binds on `props` change
-const mapDispatchToProps = (dispatch, ownProps) => {
-  toggleTodo: () => dispatch(toggleTodo(ownProps.todoId))
-}
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  toggleTodo: () => dispatch(toggleTodo(ownProps.todoId)),
+})
 ```
 
 The number of declared function parameters of `mapDispatchToProps` determines whether they receive ownProps. See notes [here](#the-arity-of-maptoprops-functions).
@@ -146,7 +150,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     dispatchActionCreatedByActionCreator: () => dispatch(createMyAction()),
     ...boundActions,
     // you may return dispatch here
-    dispatch
+    dispatch,
   }
 }
 ```
@@ -165,13 +169,10 @@ import { addTodo, deleteTodo, toggleTodo } from './actionCreators'
 const mapDispatchToProps = {
   addTodo,
   deleteTodo,
-  toggleTodo
+  toggleTodo,
 }
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(TodoApp)
+export default connect(null, mapDispatchToProps)(TodoApp)
 ```
 
 In this case, React-Redux binds the `dispatch` of your store to each of the action creators using `bindActionCreators`. The result will be regarded as `dispatchProps`, which will be either directly merged to your connected components, or supplied to `mergeProps` as the second argument.
@@ -202,12 +203,13 @@ The fields in the plain object you return from it will be used as the props for 
 
 The return value of `mergeProps` is referred to as `mergedProps` and the fields will be used as the props for the wrapped component.
 
+> Note: Creating new values in mergeProps will cause re-renders. It is recommended that you memoize fields in order to avoid unnecessary re-renders. 
+
 ### `options?: Object`
 
 ```js
 {
   context?: Object,
-  pure?: boolean,
   areStatesEqual?: Function,
   areOwnPropsEqual?: Function,
   areStatePropsEqual?: Function,
@@ -226,55 +228,32 @@ You may pass the context to your connected component either by passing it here a
 
 ```js
 // const MyContext = React.createContext();
-connect(
-  mapStateToProps,
-  mapDispatchToProps,
-  null,
-  { context: MyContext }
-)(MyComponent)
+connect(mapStateToProps, mapDispatchToProps, null, { context: MyContext })(
+  MyComponent
+)
 ```
 
-#### `pure: boolean`
-
-- default value: `true`
-
-Assumes that the wrapped component is a “pure” component and does not rely on any input or state other than its props and the selected Redux store’s state.
-
-When `options.pure` is true, `connect` performs several equality checks that are used to avoid unnecessary calls to `mapStateToProps`, `mapDispatchToProps`, `mergeProps`, and ultimately to `render`. These include `areStatesEqual`, `areOwnPropsEqual`, `areStatePropsEqual`, and `areMergedPropsEqual`. While the defaults are probably appropriate 99% of the time, you may wish to override them with custom implementations for performance or other reasons.
-
-We provide a few examples in the following sections.
-
-#### `areStatesEqual: (next: Object, prev: Object) => boolean`
+#### `areStatesEqual: (next: Object, prev: Object, nextOwnProps: Object, prevOwnProps: Object) => boolean`
 
 - default value: `strictEqual: (next, prev) => prev === next`
 
-When pure, compares incoming store state to its previous value.
-
-_Example 1_
+Compares incoming store state to its previous value.
 
 ```js
 const areStatesEqual = (next, prev) =>
   prev.entities.todos === next.entities.todos
 ```
 
-You may wish to override `areStatesEqual` if your `mapStateToProps` function is computationally expensive and is also only concerned with a small slice of your state. The example above will effectively ignore state changes for everything but that slice of state.
-
-_Example 2_
-
-If you have impure reducers that mutate your store state, you may wish to override `areStatesEqual` to always return false:
-
-```js
-const areStatesEqual = () => false
-```
+You may wish to override `areStatesEqual` if your `mapStateToProps` function is computationally expensive and is also only concerned with a small slice of your state. The example above will effectively ignore state changes for everything but that slice of state. Additionally, `areStatesEqual` provides `nextOwnProps` and `prevOwnProps` to allow for more effective scoping of your state which your connected component is interested in, if needed.
 
 This would likely impact the other equality checks as well, depending on your `mapStateToProps` function.
 
-`areOwnPropsEqual: (next: Object, prev: Object) => boolean`
+#### `areOwnPropsEqual: (next: Object, prev: Object) => boolean`
 
 - default value: `shallowEqual: (objA, objB) => boolean`
   ( returns `true` when each field of the objects is equal )
 
-When pure, compares incoming props to its previous value.
+Compares incoming props to its previous value.
 
 You may wish to override `areOwnPropsEqual` as a way to whitelist incoming props. You'd also have to implement `mapStateToProps`, `mapDispatchToProps` and `mergeProps` to also whitelist props. (It may be simpler to achieve this other ways, for example by using [recompose's mapProps](https://github.com/acdlite/recompose/blob/master/docs/API.md#mapprops).)
 
@@ -283,13 +262,13 @@ You may wish to override `areOwnPropsEqual` as a way to whitelist incoming props
 - type: `function`
 - default value: `shallowEqual`
 
-When pure, compares the result of `mapStateToProps` to its previous value.
+Compares the result of `mapStateToProps` to its previous value.
 
 #### `areMergedPropsEqual: (next: Object, prev: Object) => boolean`
 
 - default value: `shallowEqual`
 
-When pure, compares the result of `mergeProps` to its previous value.
+Compares the result of `mergeProps` to its previous value.
 
 You may wish to override `areStatePropsEqual` to use `strictEqual` if your `mapStateToProps` uses a memoized selector that will only return a new object if a relevant prop has changed. This would be a very slight performance improvement, since would avoid extra equality checks on individual props each time `mapStateToProps` is called.
 
@@ -308,14 +287,11 @@ The return of `connect()` is a wrapper function that takes your component and re
 ```js
 import { login, logout } from './actionCreators'
 
-const mapState = state => state.user
+const mapState = (state) => state.user
 const mapDispatch = { login, logout }
 
 // first call: returns a hoc that you can use to wrap any component
-const connectUser = connect(
-  mapState,
-  mapDispatch
-)
+const connectUser = connect(mapState, mapDispatch)
 
 // second call: returns the wrapper component with mergedProps
 // you may use the hoc to enable different components to get the same behavior
@@ -328,16 +304,13 @@ In most cases, the wrapper function will be called right away, without being sav
 ```js
 import { login, logout } from './actionCreators'
 
-const mapState = state => state.user
+const mapState = (state) => state.user
 const mapDispatch = { login, logout }
 
 // call connect to generate the wrapper function, and immediately call
 // the wrapper function to generate the final wrapper component.
 
-export default connect(
-  mapState,
-  mapDispatch
-)(Login)
+export default connect(mapState, mapDispatch)(Login)
 ```
 
 ## Example Usage
@@ -355,10 +328,7 @@ export default connect()(TodoApp)
 ```js
 import * as actionCreators from './actionCreators'
 
-export default connect(
-  null,
-  actionCreators
-)(TodoApp)
+export default connect(null, actionCreators)(TodoApp)
 ```
 
 - Inject `dispatch` and every field in the global state
@@ -368,7 +338,7 @@ export default connect(
 
 ```js
 // don't do this!
-export default connect(state => state)(TodoApp)
+export default connect((state) => state)(TodoApp)
 ```
 
 - Inject `dispatch` and `todos`
@@ -390,10 +360,7 @@ function mapStateToProps(state) {
   return { todos: state.todos }
 }
 
-export default connect(
-  mapStateToProps,
-  actionCreators
-)(TodoApp)
+export default connect(mapStateToProps, actionCreators)(TodoApp)
 ```
 
 - Inject `todos` and all action creators (`addTodo`, `completeTodo`, ...) as `actions`
@@ -410,10 +377,7 @@ function mapDispatchToProps(dispatch) {
   return { actions: bindActionCreators(actionCreators, dispatch) }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TodoApp)
+export default connect(mapStateToProps, mapDispatchToProps)(TodoApp)
 ```
 
 - Inject `todos` and a specific action creator (`addTodo`)
@@ -430,10 +394,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ addTodo }, dispatch)
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TodoApp)
+export default connect(mapStateToProps, mapDispatchToProps)(TodoApp)
 ```
 
 - Inject `todos` and specific action creators (`addTodo` and `deleteTodo`) with shorthand syntax
@@ -447,13 +408,10 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   addTodo,
-  deleteTodo
+  deleteTodo,
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TodoApp)
+export default connect(mapStateToProps, mapDispatchToProps)(TodoApp)
 ```
 
 - Inject `todos`, `todoActionCreators` as `todoActions`, and `counterActionCreators` as `counterActions`
@@ -470,14 +428,11 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     todoActions: bindActionCreators(todoActionCreators, dispatch),
-    counterActions: bindActionCreators(counterActionCreators, dispatch)
+    counterActions: bindActionCreators(counterActionCreators, dispatch),
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TodoApp)
+export default connect(mapStateToProps, mapDispatchToProps)(TodoApp)
 ```
 
 - Inject `todos`, and todoActionCreators and counterActionCreators together as `actions`
@@ -496,14 +451,11 @@ function mapDispatchToProps(dispatch) {
     actions: bindActionCreators(
       { ...todoActionCreators, ...counterActionCreators },
       dispatch
-    )
+    ),
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TodoApp)
+export default connect(mapStateToProps, mapDispatchToProps)(TodoApp)
 ```
 
 - Inject `todos`, and all `todoActionCreators` and `counterActionCreators` directly as props
@@ -524,10 +476,7 @@ function mapDispatchToProps(dispatch) {
   )
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TodoApp)
+export default connect(mapStateToProps, mapDispatchToProps)(TodoApp)
 ```
 
 - Inject `todos` of a specific user depending on props
@@ -554,15 +503,11 @@ function mapStateToProps(state) {
 function mergeProps(stateProps, dispatchProps, ownProps) {
   return Object.assign({}, ownProps, {
     todos: stateProps.todos[ownProps.userId],
-    addTodo: text => dispatchProps.addTodo(ownProps.userId, text)
+    addTodo: (text) => dispatchProps.addTodo(ownProps.userId, text),
   })
 }
 
-export default connect(
-  mapStateToProps,
-  actionCreators,
-  mergeProps
-)(TodoApp)
+export default connect(mapStateToProps, actionCreators, mergeProps)(TodoApp)
 ```
 
 ## Notes
@@ -571,7 +516,7 @@ export default connect(
 
 The number of declared function parameters of `mapStateToProps` and `mapDispatchToProps` determines whether they receive `ownProps`
 
-> Note: `ownProps` is not passed to `mapStateToProps` and `mapDispatchToProps` if the formal definition of the function contains one mandatory parameter (function has length 1). For example, functions defined like below won't receive `ownProps` as the second argument
+> Note: `ownProps` is not passed to `mapStateToProps` and `mapDispatchToProps` if the formal definition of the function contains one mandatory parameter (function has length 1). For example, functions defined like below won't receive `ownProps` as the second argument. If the incoming value of `ownProps` is `undefined`, the default argument value will be used.
 
 ```js
 function mapStateToProps(state) {
@@ -612,11 +557,8 @@ The factory functions are commonly used with memoized selectors. This gives you 
 
 ```js
 const makeUniqueSelectorInstance = () =>
-  createSelector(
-    [selectItems, selectItemId],
-    (items, itemId) => items[itemId]
-  )
-const makeMapState = state => {
+  createSelector([selectItems, selectItemId], (items, itemId) => items[itemId])
+const makeMapState = (state) => {
   const selectItemForThisComponent = makeUniqueSelectorInstance()
   return function realMapState(state, ownProps) {
     const item = selectItemForThisComponent(state, ownProps.itemId)
@@ -625,3 +567,12 @@ const makeMapState = state => {
 }
 export default connect(makeMapState)(SomeComponent)
 ```
+
+## Legacy Version Docs
+
+While the `connect` API has stayed almost entirely API-compatible between all of our major versions, there have been some small changes in options and behavior from version to version.
+
+For details on the legacy 5.x and 6.x versions, please see these archived files in the React Redux repo:
+
+- [5.x `connect` API reference](https://github.com/reduxjs/react-redux/blob/v7.2.2/website/versioned_docs/version-5.x/api/connect.md)
+- [6.x `connect` API reference](https://github.com/reduxjs/react-redux/blob/v7.2.2/website/versioned_docs/version-6.x/api/connect.md)

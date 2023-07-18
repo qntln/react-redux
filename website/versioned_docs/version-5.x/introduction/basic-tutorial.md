@@ -1,9 +1,8 @@
 ---
-id: version-5.x-basic-tutorial
+id: basic-tutorial
 title: Basic Tutorial
 hide_title: true
 sidebar_label: Basic Tutorial
-original_id: basic-tutorial
 ---
 
 # Basic Tutorial
@@ -353,7 +352,7 @@ export default connect(
 )(Component);
 ```
 
-These four cases cover the most basic usages of `connect`. To read more about `connect`, continue reading our [API section](./api.md) that explains it in more detail.
+These four cases cover the most basic usages of `connect`. To read more about `connect`, continue reading our [API section](../api/api.md) that explains it in more detail.
 
 <!-- TODO: Put up link to the page that further explains connect -->
 
@@ -449,7 +448,7 @@ Now we've finished a very simple example of a todo app with React-Redux. All our
 - [Usage with React](https://redux.js.org/basics/usagewithreact)
 - [Using the React-Redux Bindings](https://blog.isquaredsoftware.com/presentations/workshops/redux-fundamentals/react-redux.html)
 - [Higher Order Components in Depth](https://medium.com/@franleplant/react-higher-order-components-in-depth-cf9032ee6c3e)
-- [Computing Derived Data](https://redux.js.org/recipes/computingderiveddata#sharing-selectors-across-multiple-components)
+- [Computing Derived Data](https://redux.js.org/recipes/computing-derived-data#sharing-selectors-across-multiple-components)
 - [Idiomatic Redux: Using Reselect Selectors for Encapsulation and Performance](https://blog.isquaredsoftware.com/2017/12/idiomatic-redux-using-reselect-selectors/)
 
 ## Get More Help
